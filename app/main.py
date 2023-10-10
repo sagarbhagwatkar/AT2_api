@@ -53,17 +53,17 @@ def predict(
 
 
 @app.get("/sales/national/")
-async def forecast_sales(input_date: str):
+async def forecast_sales(date: str):
     try:
         # Convert input date string to datetime object
-        input_date = datetime.strptime(input_date, "%Y-%m-%d").date()
+        date = datetime.strptime(date, "%Y-%m-%d").date()
 
         # Forecast for the next 7 days
         forecast_steps = 7
         forecast = loaded_model.get_forecast(steps=forecast_steps)
 
         # Create a date range for the next 7 days starting from the input date
-        forecast_dates = [input_date + timedelta(days=i) for i in range(forecast_steps)]
+        forecast_dates = [date + timedelta(days=i) for i in range(forecast_steps)]
 
         # Extract forecasted values for the next 7 days
         forecasted_sales = forecast.predicted_mean
