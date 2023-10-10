@@ -6,7 +6,7 @@ import pandas as pd
 app = FastAPI()
 
 sgd_pipe = load('../models/sgd_pipeline.joblib')
-loaded_model = joblib.load('../models/arima_model.joblib')
+
 
 @app.get("/")
 def read_root():
@@ -52,29 +52,7 @@ def predict(
 
 
 
-@app.get("/sales/national/")
-async def forecast_sales(date: str):
-    try:
-        # Convert input date string to datetime object
-        date = datetime.strptime(date, "%Y-%m-%d").date()
 
-        # Forecast for the next 7 days
-        forecast_steps = 7
-        forecast = loaded_model.get_forecast(steps=forecast_steps)
-
-        # Create a date range for the next 7 days starting from the input date
-        forecast_dates = [date + timedelta(days=i) for i in range(forecast_steps)]
-
-        # Extract forecasted values for the next 7 days
-        forecasted_sales = forecast.predicted_mean
-
-        # Create a dictionary to store the forecasted dates and sales volume
-        forecast_data = {
-            'Date': [date.strftime("%Y-%m-%d") for date in forecast_dates],
-            'Forecasted Sales Volume': forecasted_sales.tolist()
-        }
-
-        return forecast_data
 
 
 
