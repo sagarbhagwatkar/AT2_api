@@ -6,6 +6,7 @@ import pandas as pd
 app = FastAPI()
 
 sgd_pipe = load('../models/sgd_pipeline.joblib')
+loaded_model = joblib.load('../models/arima_model.joblib')
 
 @app.get("/")
 def read_root():
@@ -49,13 +50,6 @@ def predict(
     pred = sgd_pipe.predict(obs)
     return JSONResponse(pred.tolist())
 
-
-
-
-
-
-# Load the saved ARIMA model
-loaded_model = joblib.load('../models/arima_model.joblib')
 
 
 @app.get("/sales/national/")
