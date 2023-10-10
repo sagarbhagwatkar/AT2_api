@@ -51,10 +51,10 @@ def predict(
 
 
 @app.get("/sales/national/")
-async def forecast_sales(input_date: str):
+async def forecast_sales(date: str):
     try:
         # Convert input date string to datetime object
-        input_date = datetime.strptime(input_date, "%Y-%m-%d").date()
+        date = datetime.strptime(date, "%Y-%m-%d").date()
     except ValueError:
         return {"error": "Invalid date format. Please use YYYY-MM-DD."}
 
@@ -66,7 +66,7 @@ async def forecast_sales(input_date: str):
     forecast = loaded_model.get_forecast(steps=forecast_steps)
 
     # Create a date range for the next 7 days starting from the input date
-    forecast_index = pd.date_range(start=input_date, periods=forecast_steps)
+    forecast_index = pd.date_range(start=date, periods=forecast_steps)
 
     # Extract forecasted values for the next 7 days
     forecasted_sales = forecast.predicted_mean
