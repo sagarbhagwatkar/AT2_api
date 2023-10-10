@@ -48,3 +48,33 @@ def predict(
     obs = pd.DataFrame(features)
     pred = sgd_pipe.predict(obs)
     return JSONResponse(pred.tolist())
+
+
+@app.get("/sales/national/")
+async def forecast_sales(input_date: str):
+    try:
+        # Convert input date string to datetime object
+        input_date = datetime.strptime(input_date, "%Y-%m-%d").date()
+    except ValueError:
+        return {"error": "Invalid date format. Please use YYYY-MM-DD."}
+
+    # Load the model from the file
+    loaded_model = joblib.load('../models/arima_model.joblib')
+
+    # Forecast for the next 7 days
+    forecast_steps = 7
+    forecast = loaded_model.get_forecast(steps=forecast_steps)
+
+    # Create a date range for the next 7 days starting from the input date
+    forecast_index = pd.date_range(start=input_date, periods=forecast_steps)
+
+    # Extract forecasted values for the next 7 days
+    forecasted_sales = forecast.predicted_mean
+
+    # Create a dictionary to store the forecasted dates and sales volume
+    forecast_data = {
+        'Date': forecast_index.strftime("%Y-%m-%d").tolist(),
+        'Forecasted Sales Volume': forecasted_sales.tolist()
+    }
+
+    return forecast_data
