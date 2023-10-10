@@ -2,10 +2,13 @@ from fastapi import FastAPI
 from starlette.responses import JSONResponse
 from joblib import load
 import pandas as pd
+import datetime
+from datetime import datetime, timedelta
 
 app = FastAPI()
 
 sgd_pipe = load('../models/sgd_pipeline.joblib')
+loaded_model = load('../models/arima_model.joblib')
 
 
 @app.get("/")
@@ -49,6 +52,30 @@ def predict(
     obs = pd.DataFrame(features)
     pred = sgd_pipe.predict(obs)
     return JSONResponse(pred.tolist())
+
+
+@app.get("/sales/national/")
+async def forecast_sales(date: str):
+        # Convert input date string to datetime object
+        date = datetime.strptime(date, "%Y-%m-%d").date()
+
+        # Forecast for the next 7 days
+        forecast_steps = 7
+        forecast = loaded_model.get_forecast(steps=forecast_steps)
+
+        # Create a date range for the next 7 days starting from the input date
+        forecast_dates = [date + timedelta(days=i) for i in range(forecast_steps)]
+
+        # Extract forecasted values for the next 7 days
+        forecasted_sales = forecast.predicted_mean
+
+        # Create a dictionary to store the forecasted dates and sales volume
+        forecast_data = {
+            'Date': [date.strftime("%Y-%m-%d") for date in forecast_dates],
+            'Forecasted Sales Volume': forecasted_sales.tolist()
+        }
+
+        return forecast_data
 
 
 
